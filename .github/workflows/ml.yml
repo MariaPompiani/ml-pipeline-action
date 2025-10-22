@@ -1,0 +1,35 @@
+name: ML Pipeline com Boas Práticas
+
+on: [push]
+
+jobs:
+  train-and-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 3. Configurar cache de dependências
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: 4. Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: 5. Executar treinamento do modelo
+        run: python train.py
+
+      - name: 6. Upload do relatório como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: classification-report
+          path: report.txt
